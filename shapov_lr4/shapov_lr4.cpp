@@ -1,5 +1,8 @@
 #include <iostream>
+#include <cstdlib>
+#include <ctime>
 #include <vector>
+#include <chrono>
 #include <omp.h>
 
 void gaussian_elimination(std::vector<double>& a, std::vector<double>& b, std::vector<double>& x, int n)
@@ -7,7 +10,7 @@ void gaussian_elimination(std::vector<double>& a, std::vector<double>& b, std::v
     // Forward elimination
     for (int k = 0; k < n - 1; k++) {
         double pivot = a[k * n + k];
-        #pragma omp parallel for shared(a, b) num_threads(4)
+        #pragma omp parallel for shared(a, b)
         for (int i = k + 1; i < n; i++) {
             double lik = a[i * n + k] / pivot;
             for (int j = k; j < n; j++) {
@@ -35,12 +38,19 @@ void gaussian_elimination(std::vector<double>& a, std::vector<double>& b, std::v
 
 int main()
 {
-    // create the matrix A and vector b
-    std::vector<double> a = { 2, 1, -1, -3, -1, 2, -2, 1, 2 };
-    std::vector<double> b = { 8, -11, -3 };
+    srand(time(0));
+    int n = 10;
 
-    int n = 3;
+    std::vector<double> a(n*n);
+    std::vector<double> b(n);
     std::vector<double> x(n);
+
+    for (int i = 0; i < n*n; ++i) {
+        a[i] = rand() % 100 + 1;
+    }
+    for (int i = 0; i < n; ++i) {
+        b[i] = rand() % 100 + 1;
+    }
 
     // solve the system using Gaussian elimination with forward and backward algorithms
     gaussian_elimination(a, b, x, n);
